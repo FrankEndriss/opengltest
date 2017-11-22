@@ -12,7 +12,12 @@ using namespace std;
 
 // the program created from the shaders
 GLuint program;
+
+// the attribute location of 
 GLint attribute_coord2d;
+
+// VBO (VertexBufferObject) for vertex data (the triangles)
+GLuint vbo_triangle;
 
 bool init_resources(void) {
 	GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
@@ -40,6 +45,19 @@ bool init_resources(void) {
 		return false;
 	}
 
+	// init the VBO holding the triangel vertices data
+	GLfloat triangle_vertices[] = {
+	    0.0,  0.8,
+	   -0.8, -0.8,
+	    0.8, -0.8,
+	};
+	glGenBuffers(1, &vbo_triangle);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_triangle);
+
+	// copy the data to the buffer,and hence to the graphic device
+	// If the data changes once per frame or more often, you could use GL_DYNAMIC_DRAW or GL_STREAM_DRAW.
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_vertices), triangle_vertices, GL_STATIC_DRAW);
+
 	return true;
 }
 
@@ -47,7 +65,7 @@ static int renderCounter=0;
 static int increment=1;
 
 void render(SDL_Window* window) {
-	/* Clear the background as white */
+	/* Clear the background as white-to-black fading. */
 	if(renderCounter>100)
 		increment=-1;
 	else if(renderCounter<0)
@@ -59,13 +77,18 @@ void render(SDL_Window* window) {
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(program);
+
+  	glBindBuffer(GL_ARRAY_BUFFER, vbo_triangle);
 	glEnableVertexAttribArray(attribute_coord2d);
+/*
 	float m=renderCounter/100.0;
 	GLfloat triangle_vertices[] = {
 	    0.0,  0.8*m,
 	   -0.8, -0.8,
 	    0.8, -0.8,
 	};
+*/
+	// TODO move the 0.8*m to the VBO
 
 	/* Describe our vertices array to OpenGL (it can't guess its format automatically) */
 	glVertexAttribPointer(
@@ -74,8 +97,8 @@ void render(SDL_Window* window) {
 		GL_FLOAT,          // the type of each element
 		GL_FALSE,          // take our values as-is
 		0,                 // no extra data between each position
-		triangle_vertices  // pointer to the C array
-						  );
+		0		   // offset of first element
+	);
 	
 	/* Push each element in buffer_vertices to the vertex shader */
 	glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -88,6 +111,7 @@ void render(SDL_Window* window) {
 
 void free_resources() {
 	glDeleteProgram(program);
+	glDeleteBuffers(1, &vbo_triangle);
 }
 
 void mainLoop(SDL_Window* window) {
