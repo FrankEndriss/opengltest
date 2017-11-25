@@ -22,10 +22,14 @@ static void error_callback(int error, const char* description)
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     fprintf(stdout, "key_callback, key=%d scancode=%d action=%d mods=%d\n", key, scancode, action, mods);
 
+    /* exit application */
+    glfwSetWindowShouldClose(window, 1);
+
 //    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
 //        glfwSetWindowShouldClose(window, GLFW_TRUE);
 }
-int main(void)
+
+int main(int argc, char** argv)
 {
     GLFWwindow* window;
 
@@ -35,9 +39,9 @@ int main(void)
 
     glfwSetErrorCallback(error_callback);
 
-    /* set minimum required opengl version */
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+    /* set minimum required glfw version */
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 
     /* Create a windowed mode window and its OpenGL context */
     window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
