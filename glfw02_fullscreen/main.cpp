@@ -2,8 +2,9 @@
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 
-#include <stdio.h>
+#include <iostream>
 
+using namespace std;
 
 /** Function called to render the current screen.
  * Seems to be called 60 times per second.
@@ -14,13 +15,15 @@ static void render(GLFWwindow *window) {
 
 static void error_callback(int error, const char* description)
 {
-    fprintf(stderr, "Error: %d %s\n", error, description);
+    cerr << "Error: " << error << " " << description << endl;
 }
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    fprintf(stdout, "key_callback, key=%d scancode=%d action=%d mods=%d\n", key, scancode, action, mods);
+    cout << "key_callback, key="<<key<<" scancode="<<scancode<<" action="<<action<<" mods="<<mods<<endl;
 
     if(key==GLFW_KEY_F && action==GLFW_PRESS) { // user pressed "f" key, switches screen modes
+	// TODO implement the switch as described in
+	// http://www.glfw.org/docs/latest/window_guide.html#window_monitor
     } else /* exit application */
     	glfwSetWindowShouldClose(window, GL_TRUE);
 }
