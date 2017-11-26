@@ -1,2 +1,8 @@
-Shows howto switch from Windowed mode Window to full screen an back.
-Press "f"-Key to switch, any other key to exit.
+Call with "-f" option to fullscreen, without opens a window of size 640X480.
+
+While running
+* "f"-Key to switch from windowed mode window to full screen an back
+* "g"-Key to display monitor parameters on stdout.
+* Any other key to exit.
+
+

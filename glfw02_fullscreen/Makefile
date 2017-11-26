@@ -1,5 +1,5 @@
 
-CXX=g++ -std=c++11 -Wall -I/home/frank/git/glfw/include
+CXX=g++ -std=c++11 -Wall
 LD=${CXX}
 
 OBJ=main.o
