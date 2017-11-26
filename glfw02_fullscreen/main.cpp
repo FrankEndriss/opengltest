@@ -2,6 +2,7 @@
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 
+#include <cstdlib>
 #include <iostream>
 
 using namespace std;
@@ -20,10 +21,42 @@ static void error_callback(int error, const char* description)
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     cout << "key_callback, key="<<key<<" scancode="<<scancode<<" action="<<action<<" mods="<<mods<<endl;
+    if(action!=GLFW_PRESS)
+    	return;	// ignore Key-release
 
     if(key==GLFW_KEY_F && action==GLFW_PRESS) { // user pressed "f" key, switches screen modes
-	// TODO implement the switch as described in
-	// http://www.glfw.org/docs/latest/window_guide.html#window_monitor
+    	// see http://www.glfw.org/docs/latest/window_guide.html#window_monitor
+    	const bool fullscreen= glfwGetWindowMonitor(window)!=NULL;
+    	if(!fullscreen) {
+    		GLFWmonitor *monitor=glfwGetPrimaryMonitor();
+    		if(monitor==NULL) {
+    			cerr<<"cant determine primary monitor, exit(EXIT_FAILURE)"<<endl;
+    			exit(EXIT_FAILURE);
+    		}
+   			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+   			//glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
+   			cout<<"cannot switch to fullscreen mode on glfw 3.1.2 "<<endl;
+    	} else {
+    		// glfwSetWindowMonitor(window, NULL, 100, 100, 640, 480, 0);
+   			cout<<"cannot switch to windowed mode on glfw 3.1.2"<<endl;
+    	}
+    } else if(key==GLFW_KEY_G && action==GLFW_PRESS) { // user pressed "g" key
+    	// ************* display current monitor values
+    	GLFWmonitor* monitor = glfwGetWindowMonitor(window);
+    	if(monitor!=NULL) {
+    		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    		cout << "Running in fullscreen, monitor values: " << endl;
+    		cout << "with: "<<mode->width<<" height:"<<mode->height<<" refreshRate:"<<mode->refreshRate <<endl;
+     	} else {
+    		cout<<"cant determine WindowMonitor...most likely we run in windowed mode."<<endl;
+    		cout<<"querying monitors..." <<endl;
+    		int mCount;
+    		GLFWmonitor** monitors=glfwGetMonitors(&mCount);
+    		for(int i=0; i<mCount; i++) {
+    			const GLFWvidmode* mode = glfwGetVideoMode(monitors[i]);
+    			cout << "monitor["<<i<<"] with: "<<mode->width<<" height:"<<mode->height<<" refreshRate:"<<mode->refreshRate <<endl;
+    		}
+     	}
     } else /* exit application */
     	glfwSetWindowShouldClose(window, GL_TRUE);
 }
