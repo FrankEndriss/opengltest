@@ -1,2 +1,5 @@
 *.o
 myProg
+.cproject
+.settings
+.project

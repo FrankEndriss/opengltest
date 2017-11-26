@@ -33,7 +33,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     			cerr<<"cant determine primary monitor, exit(EXIT_FAILURE)"<<endl;
     			exit(EXIT_FAILURE);
     		}
-   			const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+   			// const GLFWvidmode* mode = glfwGetVideoMode(monitor);
    			//glfwSetWindowMonitor(window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate);
    			cout<<"cannot switch to fullscreen mode on glfw 3.1.2 "<<endl;
     	} else {
@@ -61,9 +61,15 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
     	glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+/** dumps msg to stdout, does glfwTerminate() and exit(FAILURE); */
+static void fail(const char *msg) {
+	cerr<<msg<<endl;
+    glfwTerminate();
+	exit(EXIT_FAILURE);
+}
+
 int main(int argc, char** argv)
 {
-    GLFWwindow* window;
 
     /* Initialize the library */
     if (!glfwInit())
@@ -75,11 +81,28 @@ int main(int argc, char** argv)
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 
-    /* Create a windowed mode window and its OpenGL context */
-    window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+    bool fullscreen=false;
+
+    // very simple argument parsing
+    if(argc>1) {
+    	string fOption=string("-f");
+    	for(int i=1; i<argc; i++)
+    		if(fOption==argv[1])
+    			fullscreen=true;
+    }
+
+    GLFWwindow* window;
+    if(fullscreen) { /* Create fullscreen window */
+    	GLFWmonitor* monitor=glfwGetPrimaryMonitor();
+    	if(monitor==NULL) fail("cant determine primary monitor");
+		const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    	if(mode==NULL) fail("cant determine mode of primary monitor");
+    	window = glfwCreateWindow(mode->width, mode->height, "Hello World", monitor, NULL);
+    } else /* Create a windowed mode window and its OpenGL context */
+    	window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+
     if (!window) {
-        glfwTerminate();
-        return -1;
+    	fail("cant create window, exit(FAILURE)");
     }
 
     glfwSetKeyCallback(window, key_callback);
@@ -93,13 +116,14 @@ int main(int argc, char** argv)
     /* Set the viewport for opengl, use the whole window space. */
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
+    cout<<"setting viewport size, w="<<width<<" h="<<height;
     glViewport(0, 0, width, height);
 
     /* Loop until the user closes the window */
     while (!glfwWindowShouldClose(window)) {
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
-	render(window);
+        render(window);
 
         /* Swap front and back buffers */
         glfwSwapBuffers(window);
@@ -109,5 +133,5 @@ int main(int argc, char** argv)
     }
 
     glfwTerminate();
-    return 0;
+    exit(EXIT_SUCCESS);
 }
