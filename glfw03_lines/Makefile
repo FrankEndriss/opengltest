@@ -2,7 +2,7 @@
 CXX=g++ -std=c++11 -Wall
 LD=${CXX}
 
-OBJ=main.o Renderer.o LinesRenderer.o
+OBJ=main.o Renderer.o LinesRenderer.o Shader.o
 
 all : lines
 
