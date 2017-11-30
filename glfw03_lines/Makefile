@@ -6,6 +6,8 @@ LDFLAGS=`pkg-config --libs glfw3 gl`
 SRCS=$(wildcard *.cpp)
 OBJ=$(subst .cpp,.o,$(SRCS))
 
+#see http://make.mad-scientist.net/papers/advanced-auto-dependency-generation/
+
 DEPDIR := .d
 $(shell mkdir -p $(DEPDIR) >/dev/null)
 DEPFLAGS = -MT $@ -MMD -MP -MF $(DEPDIR)/$*.Td
