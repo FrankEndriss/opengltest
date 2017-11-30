@@ -2,6 +2,9 @@ This introduces the interface Renderer, and an implementation
 of a Renderer which displays some more or less nice, useless stuff.
 Just to show how the main program interacts with a renderer.
 
+Furthermore there are classes Shader and Program which
+compile and link the shaders.
+
 Call with "-f" option to fullscreen, without opens a window of size 640X480.
 
 While running
