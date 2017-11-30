@@ -1,0 +1,7 @@
+*.o
+.d/
+.project
+.cproject
+.settings
+lines
+
