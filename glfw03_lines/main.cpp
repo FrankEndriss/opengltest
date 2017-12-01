@@ -1,8 +1,9 @@
-#include <GL/gl.h>
-#include <GLFW/glfw3.h>
+#include "gl_include.h"
 
 #include <cstdlib>
 #include <iostream>
+
+#include "Shader.h"
 
 using namespace std;
 
@@ -26,7 +27,7 @@ static void error_callback(int error, const char* description) {
 }
 
 /** Flag is set to denote that a switch to fullscreen or vice versa should happen.
- * To do such a swith the window must be re-created (up to glfw 3.1.2), which must
+ * To do such a switch the window must be re-created (up to glfw 3.1.2), which must
  * not be done from a handler, but from the main loop. (not reentrant).
  * In glfw 3.2.1 the switch can be done on one window, see:
  * http://www.glfw.org/docs/latest/window_guide.html#window_monitor
@@ -65,7 +66,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action,
 			}
 		}
 	} else { /* exit application */
-		cout << "other key, will exit(EXIT_SUCCESS" << endl;
+		cout << "other key, will exit(EXIT_SUCCESS)" << endl;
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 }
@@ -81,7 +82,7 @@ static void initWindow(GLFWwindow* window) {
 	/* Set the viewport for opengl, use the whole window space. */
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
-	cout << "setting viewport size, w=" << width << " h=" << height <<endl;
+	cout << "setting viewport size, w=" << width << " h=" << height << endl;
 	glViewport(0, 0, width, height);
 
 }
@@ -155,6 +156,20 @@ int main(int argc, char** argv) {
 	}
 
 	initWindow(window);
+
+	// create and compile the Shaders, then link the program
+	Shader* vertexShader=new Shader(GL_FRAGMENT_SHADER);
+	GLint compileFailed=0;
+	if(argc>2) {
+		cout << "will compile" << endl;
+		compileFailed=vertexShader->compileFile(argv[1]);
+		cout << "did compile, will dump compileinfo" << endl;
+		vertexShader->dumpCompileInfo();
+		cout << "did dump compileinfo" << endl;
+	}
+
+	// exit for DEBUG
+	exit(compileFailed);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window)) {

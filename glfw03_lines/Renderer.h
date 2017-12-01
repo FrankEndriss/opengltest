@@ -6,7 +6,7 @@
 #ifndef RENDERER_H_
 #define RENDERER_H_
 
-#include <GLFW/glfw3.h>
+#include "gl_include.h"
 
 class Renderer {
 protected:

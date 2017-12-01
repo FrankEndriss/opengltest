@@ -1,9 +1,3 @@
-/*
- * Renderer.cpp
- *
- *  Created on: 26.11.2017
- *      Author: frank
- */
 
 #include "Renderer.h"
 

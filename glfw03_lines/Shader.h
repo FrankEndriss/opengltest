@@ -1,14 +1,8 @@
-/*
- * Shader.h
- *
- *  Created on: 29.11.2017
- *      Author: frank
- */
 
 #ifndef SHADER_H_
 #define SHADER_H_
 
-#include <GLFW/glfw3.h>
+#include "gl_include.h"
 #include <ostream>
 
 /** Shader-Compiler interface.
@@ -27,10 +21,11 @@ public:
 	 *  @param lineCount number of lines, each one null terminated
 	 */
 	GLint compile(char** sourceLines, int lineCount);
-	void dumpCompileInfo(std::ostream out);
+	void dumpCompileInfo();
 
 private:
 	GLuint shader;
+	GLint compileInfoAvailable=0;
 };
 
 #endif /* SHADER_H_ */
