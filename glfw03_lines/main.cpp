@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include "Shader.h"
+#include "Program.h"
 
 using namespace std;
 
@@ -158,18 +159,12 @@ int main(int argc, char** argv) {
 	initWindow(window);
 
 	// create and compile the Shaders, then link the program
-	Shader* vertexShader=new Shader(GL_FRAGMENT_SHADER);
-	GLint compileFailed=0;
-	if(argc>2) {
-		cout << "will compile" << endl;
-		compileFailed=vertexShader->compileFile(argv[1]);
-		cout << "did compile, will dump compileinfo" << endl;
-		vertexShader->dumpCompileInfo();
-		cout << "did dump compileinfo" << endl;
-	}
+	Program* program=new Program();
+	if(program->loadAndCompileShaderSet("triangle") && program->link())
+		program->use();
 
 	// exit for DEBUG
-	exit(compileFailed);
+	exit(EXIT_SUCCESS);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window)) {

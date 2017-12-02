@@ -9,7 +9,8 @@
  */
 class Shader {
 public:
-	/** @param type */
+	/** @param type GL_FRAGMENT_SHADER or GL_VERTEX_SHADER
+	 */;
 	Shader(GLenum type);
 	virtual ~Shader();
 
@@ -19,12 +20,13 @@ public:
 	GLint compileFile(char* path);
 	/** @param source lines of sourcecode
 	 *  @param lineCount number of lines, each one null terminated
+	 *  @return true for SUCCESS, else dumpCompileInfo will contain useful info
 	 */
 	GLint compile(char** sourceLines, int lineCount);
 	void dumpCompileInfo();
 
-private:
 	GLuint shader;
+private:
 	GLint compileInfoAvailable=0;
 };
 
