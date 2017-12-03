@@ -38,12 +38,25 @@ public:
 	 */
 	void use();
 
+	/** @return openGL location of uniform name, to use with glUniform*(location, values) */
+	GLint uniformLocation(const char* name);
+
 	/** see glBindAttribLocation(program, loc, attribName) */
 	void bindAttribLocation(int loc, const char* attrib);
 private:
 	GLuint program;
 	Shader* fShader;
 	Shader* vShader;
+
+	/** Uniform table, count and initialization flag */
+	int uniformCount=-1;
+	typedef struct {
+		char* name;
+		GLint size;
+		GLenum type;
+		GLint location;
+	} tag_uniform;
+	tag_uniform *uniforms;
 };
 
 #endif /* PROGRAM_H_ */

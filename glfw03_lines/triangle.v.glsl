@@ -1,6 +1,7 @@
 #version 100
 
-//uniform ivec3 mainColor;
+precision mediump float;
+uniform vec4 mainColor;
 
 attribute vec3 coord3d;
 

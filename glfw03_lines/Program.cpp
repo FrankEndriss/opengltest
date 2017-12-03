@@ -8,12 +8,13 @@
 #include "Shader.h"
 #include <iostream>
 using namespace std;
+#include "logging.h"
 
 Program::Program() {
 	program=glCreateProgram();
 	fShader=NULL;
 	vShader=NULL;
-	new Shader(GL_VERTEX_SHADER);
+	uniforms=0;
 }
 
 Program::~Program() {
@@ -23,6 +24,10 @@ Program::~Program() {
 		delete vShader;
 
 	glDeleteProgram(program);
+
+	for(int i=0; i<uniformCount; i++)
+		free(uniforms[i].name);
+	free(uniforms);
 }
 
 const static char* pathPostfixF=".f.glsl";
@@ -73,12 +78,14 @@ GLuint Program::loadAndCompileShaderSet(const char* pathPrefix) {
 	cout<<"Shader()->compileFile("<<path<<") succeeded"<<endl;
 
 	free(path);
+
+	glAttachShader(program, vShader->shader);
+	glAttachShader(program, fShader->shader);
+
 	return res;
 }
 
 GLint Program::link() {
-	glAttachShader(program, vShader->shader);
-	glAttachShader(program, fShader->shader);
 	glLinkProgram(program);
 	GLint ret;
 	glGetProgramiv(program, GL_LINK_STATUS, &ret);
@@ -93,6 +100,33 @@ GLint Program::link() {
 		}
 	}
 	return ret;
+}
+
+GLint Program::uniformLocation(const char* name) {
+	if(uniformCount==-1) { // need to initialize uniform table
+		glGetProgramiv(program, GL_ACTIVE_UNIFORMS, &uniformCount);
+		if(uniformCount<1)
+			return -1;
+
+		GLint maxNameLen;
+		glGetProgramiv(program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxNameLen);
+
+		uniforms=(tag_uniform*)malloc(sizeof(tag_uniform)*uniformCount);
+		for(int i=0; i<uniformCount; i++) {
+			uniforms[i].name=(char*)malloc(maxNameLen);
+			glGetActiveUniform(program, i, maxNameLen, NULL, &uniforms[i].size, &uniforms[i].type, uniforms[i].name);
+			uniforms[i].location=glGetUniformLocation(program, uniforms[i].name);
+			INFO << "uniform location for "<<uniforms[i].name<<"="<<uniforms[i].location;
+		}
+	}
+
+	// query the uniform table
+	for(int i=0; i<uniformCount; i++)
+		if(string(name).compare(uniforms[i].name)==0)
+			return uniforms[i].location;
+
+	ERROR << "uniform location for "<<name<<" unknown!!!";
+	return -1; // doesnt exist
 }
 
 void Program::use() {

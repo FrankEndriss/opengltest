@@ -1,9 +1,10 @@
 #version 100
 
-//uniform ivec3 mainColor;
+// example of a uniform
+precision mediump float;
+uniform vec4 mainColor;
 
 void main(void) {
-// draw everything in one color
-	gl_FragColor = vec4(1.0, 0.0, 0.0, 0.0);
+	gl_FragColor = mainColor;
 }
 

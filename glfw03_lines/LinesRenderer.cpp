@@ -52,6 +52,9 @@ void LinesRenderer::renderLogOnce() {
 	IMPL->onceLog=true;
 }
 
+static float redValue=0.0f;
+static float redValueIncrement=0.01f;
+
 void LinesRenderer::render(GLFWwindow* window, Program* program) {
 	IMPL->renderCallCount++;
 	if(IMPL->onceLog) {
@@ -59,15 +62,23 @@ void LinesRenderer::render(GLFWwindow* window, Program* program) {
 		IMPL->onceLog=false;
 	}
 
-	int width, height;
-	glfwGetFramebufferSize(window, &width, &height);
-	glViewport(0, 0, width, height);
+	//int width, height;
+	//glfwGetFramebufferSize(window, &width, &height);
+	//glViewport(0, 0, width, height);
 	glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	program->use();
+	//program->use();
 
-	glVertexAttribPointer(ATTRIB_LOC_COORD3D, 3, GL_FLOAT, GL_FALSE, 0, IMPL->vertices);
+	// set the uniform "mainColor" to some more or less random value
+	GLint uLocation=program->uniformLocation(string("mainColor").c_str());
+	if(redValue>=0.99f || redValue<=0.01f)
+		redValueIncrement=-redValueIncrement;
+	redValue+=redValueIncrement;
+	glUniform4f(uLocation, redValue, 0.3, 0.2, 0.8);
+
+	// send the vertices to openGL
 	glEnableVertexAttribArray(ATTRIB_LOC_COORD3D);
+	glVertexAttribPointer(ATTRIB_LOC_COORD3D, 3, GL_FLOAT, GL_FALSE, 0, IMPL->vertices);
 	glDrawArrays(GL_TRIANGLES,  0, 3);
 }
