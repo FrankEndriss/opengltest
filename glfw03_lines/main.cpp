@@ -6,30 +6,20 @@
 #include "Shader.h"
 #include "Program.h"
 #include "LinesRenderer.h"
+#include "logging.h"
 
 using namespace std;
 
-static int DEBUG=1;
-
-#define DBGOUT(str) (if(DEBUG) cout<<str<<endl;)
-
-/** dumps msg to stdout, does glfwTerminate() and exit(FAILURE); */
+/** logs msg, does glfwTerminate() and exit(EXIT_FAILURE) */
 static void fail(const char *msg) {
-	cerr << msg << endl;
+	FATAL<<"FATAL, will exit(EXIT_FAILURE): "<<msg;
 	glfwTerminate();
 	exit(EXIT_FAILURE);
 }
 
-/** Function called to render the current screen.
- * Seems to be called 60 times per second.
-static void render(GLFWwindow *window) {
-	// better dont render anything until we know what to do ;)
-}
- */
-
 /** GLFW error callback */
 static void error_callback(int error, const char* description) {
-	cerr << "Error: " << error << " " << description << endl;
+	ERROR<< "Error: "<<error<<" "<<description;
 }
 
 /** Flag is set to denote that a switch to fullscreen or vice versa should happen.
@@ -42,8 +32,9 @@ static bool switchFullscreen = false;
 
 static void key_callback(GLFWwindow* window, int key, int scancode, int action,
 		int mods) {
-	cout << "key_callback, key=" << key << " scancode=" << scancode
-			<< " action=" << action << " mods=" << mods << endl;
+	INFO<<"key_callback, key="<< key << " scancode=" << scancode
+			<< " action=" << action << " mods=" << mods;
+
 	if (action != GLFW_PRESS)
 		return;	// ignore Key-release
 
@@ -54,31 +45,30 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action,
 		auto monitor = glfwGetWindowMonitor(window);
 		if (monitor != NULL) {
 			auto mode = glfwGetVideoMode(monitor);
-			cout << "Running in fullscreen, monitor values: " << endl;
-			cout << "with: " << mode->width << " height:" << mode->height
-					<< " refreshRate:" << mode->refreshRate << endl;
+			INFO << "Running in fullscreen, monitor values: ";
+			INFO << "with: " << mode->width << " height:" << mode->height << " refreshRate:" << mode->refreshRate;
 		} else {
-			cout
-					<< "cant determine WindowMonitor...most likely we run in windowed mode."
-					<< endl;
-			cout << "querying monitors..." << endl;
+			INFO << "cant determine WindowMonitor...most likely we run in windowed mode.";
+			INFO << "querying monitors...";
 			int mCount;
 			auto monitors = glfwGetMonitors(&mCount);
 			for (int i = 0; i < mCount; i++) {
 				auto mode = glfwGetVideoMode(monitors[i]);
-				cout << "monitor[" << i << "] with: " << mode->width
+				INFO << "monitor[" << i << "] with: " << mode->width
 						<< " height:" << mode->height << " refreshRate:"
-						<< mode->refreshRate << endl;
+						<< mode->refreshRate;
 			}
 		}
+	} else if (key == GLFW_KEY_R && action == GLFW_PRESS) { // user pressed "r" key
+		((Renderer*)glfwGetWindowUserPointer(window))->renderLogOnce();
 	} else { /* exit application */
-		cout << "other key, will exit(EXIT_SUCCESS)" << endl;
+		INFO << "other key, will close window";
 		glfwSetWindowShouldClose(window, GL_TRUE);
 	}
 }
 
 static void initWindow(GLFWwindow* window) {
-	cout << "in initWindow" << endl;
+	INFO << "in initWindow";
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 	/* Make swaping on every hsync. (60fps). Swap-Interval 0 makes up to 4000fps. */
@@ -87,13 +77,10 @@ static void initWindow(GLFWwindow* window) {
 	glfwSetKeyCallback(window, key_callback);
 
 	/* Set the viewport for opengl, use the whole window space. */
-	/*
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
-	cout << "setting viewport size, w=" << width << " h=" << height << endl;
+	INFO << "setting viewport size, w=" << width << " h=" << height;
 	glViewport(0, 0, width, height);
-	*/
-
 }
 
 /** Closed window and opens a new one, returns the new one.
@@ -126,7 +113,7 @@ GLFWwindow* switchFullscreenMode(GLFWwindow* window) {
 }
 
 int main(int argc, char** argv) {
-	/* Initialize the library */
+	/* Initialize GLFW first. */
 	if (!glfwInit())
 		return -1;
 
@@ -158,33 +145,33 @@ int main(int argc, char** argv) {
 				monitor, NULL);
 	} else
 		/* Create a windowed mode window and its OpenGL context */
-		cout << "will create window"<<endl;
+		TRACE << "will create window";
 		window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
-		cout << "did create window"<<endl;
+		TRACE << "did create window";
 
-	if (!window) {
-		fail("cant create window, exit(FAILURE)");
-	}
+	if (!window)
+		fail("cant create window");
 
 	initWindow(window);
-	cout << "after initWindow" << endl;
+	TRACE << "after initWindow";
 
 	// create and compile the Shaders, then link the program
-	cout << "will create new Program()" << endl;
+	TRACE << "will create new Program()";
 	Program* program=new Program();
-	cout << "did create new Program(), will create new LinesRenderer()" << endl;
+	TRACE << "did create new Program(), will create new LinesRenderer()";
 	Renderer* renderer=new LinesRenderer();
-	cout << "did create new LinesRenderer(), will loadAndCompileShaderSet()" << endl;
+	glfwSetWindowUserPointer(window, renderer);
+	TRACE << "did create new LinesRenderer(), will loadAndCompileShaderSet()";
 
-	static string ShaderName="triangle";
-	if(program->loadAndCompileShaderSet(ShaderName.c_str())) {
-		cout << "loadAndCompile succeded"<<endl;
+	static string shaderName="triangle";
+	if(program->loadAndCompileShaderSet(shaderName.c_str())) {
+		TRACE << "loadAndCompile succeded";
 		renderer->bindAttribLocations(program);
-		cout << "bindAttributeLocations succeded"<<endl;
+		TRACE << "bindAttributeLocations succeded";
 		if(program->link()) {
-			cout << "link succeded"<<endl;
+			TRACE << "link succeded";
 			program->use();
-			cout << "use succeded"<<endl;
+			TRACE << "use succeded";
 		} else
 			exit(EXIT_FAILURE);
 	}
@@ -212,6 +199,6 @@ int main(int argc, char** argv) {
 	}
 
 	glfwTerminate();
-	cout<<"finished, EXIT_SUCCESS"<<endl;
+	WARN <<"finished, EXIT_SUCCESS";
 	exit(EXIT_SUCCESS);
 }

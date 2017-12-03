@@ -3,6 +3,7 @@
 .project
 .cproject
 .settings
+.settings/*
 lines
 obj
 

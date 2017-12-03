@@ -1,7 +1,12 @@
 
-CXX=g++ `pkg-config --cflags glfw3 gl` -std=c++11 -Wall
+#configure packages glfw3 and gl for openGL-stuff
+#-std=c++11 beause thats the HOT stuff
+#-Wall because we are pedantic
+#-DBOOST_LOG_DYn_LINK for logging with boost-log library
+CXX=g++ `pkg-config --cflags glfw3 gl` -std=c++11 -Wall -DBOOST_LOG_DYN_LINK
 LD=g++
-LDFLAGS=`pkg-config --libs glfw3 gl`
+#-lboost_log and -lpthread for logging wicht boost-log library
+LDFLAGS=`pkg-config --libs glfw3 gl` -lboost_log  -lpthread
 
 OBJDIR := obj
 SRCS=$(wildcard *.cpp)

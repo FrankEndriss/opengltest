@@ -21,6 +21,8 @@ public:
 	/** this will call program->bindAttribLocation(int, char*) for all used attributes in the renderer. */
 	void bindAttribLocations(Program *program);
 
+	void renderLogOnce();
+
 	/** Renders some lines into window. */
 	void render(GLFWwindow* window, Program* program);
 private:

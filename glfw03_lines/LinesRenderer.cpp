@@ -4,16 +4,14 @@
 
 #include "LinesRenderer.h"
 #include <malloc.h>
+#include "logging.h"
 #include <iostream>
 using namespace std;
-
-//int i=5;
-
 
 // private implementation
 class LinesRendererImpl {
 public:
-	GLfloat vertices[9];
+	GLfloat *vertices;
 
 	LinesRendererImpl() {
 		static GLfloat lV[] = {
@@ -21,17 +19,28 @@ public:
 			-0.8,	-0.8,	0.0,
 			0.8,	-0.8,	0.0
 		};
-		cout<<"sizeof(vertices)=="<<sizeof(vertices)<<endl;
-		cout<<"sizeof(lV)=="<<sizeof(lV)<<endl;
-		for(uint i=0; i<sizeof(vertices)/sizeof(GLfloat); i++)
+		int numFloats=sizeof(lV)/sizeof(GLfloat);
+		vertices=(GLfloat*)malloc(sizeof(GLfloat)*numFloats);
+
+		for(int i=0; i<numFloats; i++)
 			vertices[i]=lV[i];
 	}
-};
 
+	~LinesRendererImpl() {
+		free(vertices);
+	}
+
+	bool onceLog=false;
+	uint renderCallCount=0;
+};
 
 LinesRenderer::LinesRenderer() : Renderer() {
 	impl=new LinesRendererImpl();
 #define IMPL ((LinesRendererImpl*)impl)
+}
+
+LinesRenderer::~LinesRenderer() {
+	delete IMPL;
 }
 
 void LinesRenderer::bindAttribLocations(Program* program) {
@@ -39,12 +48,17 @@ void LinesRenderer::bindAttribLocations(Program* program) {
 	program->bindAttribLocation(ATTRIB_LOC_COORD3D, "coord3d");
 }
 
-LinesRenderer::~LinesRenderer() {
-	delete IMPL;
+void LinesRenderer::renderLogOnce() {
+	IMPL->onceLog=true;
 }
 
 void LinesRenderer::render(GLFWwindow* window, Program* program) {
-	//cout << "in LinesRenderer::render" << endl;
+	IMPL->renderCallCount++;
+	if(IMPL->onceLog) {
+		INFO << "in LinesRenderer::render, calls: "<<IMPL->renderCallCount;
+		IMPL->onceLog=false;
+	}
+
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	glViewport(0, 0, width, height);
