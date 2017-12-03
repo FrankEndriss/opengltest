@@ -5,8 +5,13 @@
 
 #include "Shader.h"
 #include "Program.h"
+#include "LinesRenderer.h"
 
 using namespace std;
+
+static int DEBUG=1;
+
+#define DBGOUT(str) (if(DEBUG) cout<<str<<endl;)
 
 /** dumps msg to stdout, does glfwTerminate() and exit(FAILURE); */
 static void fail(const char *msg) {
@@ -17,10 +22,10 @@ static void fail(const char *msg) {
 
 /** Function called to render the current screen.
  * Seems to be called 60 times per second.
- */
 static void render(GLFWwindow *window) {
 	// better dont render anything until we know what to do ;)
 }
+ */
 
 /** GLFW error callback */
 static void error_callback(int error, const char* description) {
@@ -73,6 +78,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action,
 }
 
 static void initWindow(GLFWwindow* window) {
+	cout << "in initWindow" << endl;
 	/* Make the window's context current */
 	glfwMakeContextCurrent(window);
 	/* Make swaping on every hsync. (60fps). Swap-Interval 0 makes up to 4000fps. */
@@ -81,10 +87,12 @@ static void initWindow(GLFWwindow* window) {
 	glfwSetKeyCallback(window, key_callback);
 
 	/* Set the viewport for opengl, use the whole window space. */
+	/*
 	int width, height;
 	glfwGetFramebufferSize(window, &width, &height);
 	cout << "setting viewport size, w=" << width << " h=" << height << endl;
 	glViewport(0, 0, width, height);
+	*/
 
 }
 
@@ -134,7 +142,7 @@ int main(int argc, char** argv) {
 	if (argc > 1) {
 		string fOption = string("-f");
 		for (int i = 1; i < argc; i++)
-			if (fOption == argv[i])
+			if (fOption == string(argv[i]))
 				fullscreen = true;
 	}
 
@@ -150,21 +158,39 @@ int main(int argc, char** argv) {
 				monitor, NULL);
 	} else
 		/* Create a windowed mode window and its OpenGL context */
+		cout << "will create window"<<endl;
 		window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
+		cout << "did create window"<<endl;
 
 	if (!window) {
 		fail("cant create window, exit(FAILURE)");
 	}
 
 	initWindow(window);
+	cout << "after initWindow" << endl;
 
 	// create and compile the Shaders, then link the program
+	cout << "will create new Program()" << endl;
 	Program* program=new Program();
-	if(program->loadAndCompileShaderSet("triangle") && program->link())
-		program->use();
+	cout << "did create new Program(), will create new LinesRenderer()" << endl;
+	Renderer* renderer=new LinesRenderer();
+	cout << "did create new LinesRenderer(), will loadAndCompileShaderSet()" << endl;
+
+	static string ShaderName="triangle";
+	if(program->loadAndCompileShaderSet(ShaderName.c_str())) {
+		cout << "loadAndCompile succeded"<<endl;
+		renderer->bindAttribLocations(program);
+		cout << "bindAttributeLocations succeded"<<endl;
+		if(program->link()) {
+			cout << "link succeded"<<endl;
+			program->use();
+			cout << "use succeded"<<endl;
+		} else
+			exit(EXIT_FAILURE);
+	}
 
 	// exit for DEBUG
-	exit(EXIT_SUCCESS);
+	//exit(EXIT_SUCCESS);
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window)) {
@@ -173,9 +199,10 @@ int main(int argc, char** argv) {
 			window = switchFullscreenMode(window);
 		switchFullscreen = false;
 
-		glClear(GL_COLOR_BUFFER_BIT);
+		//glClear(GL_COLOR_BUFFER_BIT);
+
 		/* Render here */
-		render(window);
+		renderer->render(window, program);
 
 		/* Swap front and back buffers */
 		glfwSwapBuffers(window);
@@ -185,5 +212,6 @@ int main(int argc, char** argv) {
 	}
 
 	glfwTerminate();
+	cout<<"finished, EXIT_SUCCESS"<<endl;
 	exit(EXIT_SUCCESS);
 }

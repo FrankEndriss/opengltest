@@ -35,6 +35,7 @@ GLint Shader::compileFile(char* path) {
 	ifs.seekg(0, ios::end);
 	end = ifs.tellg();
 	int size=end-begin;
+	cout<<"size of file "<<path<<" is "<<size<< endl;
 	char *source=(char*)malloc(size+1);
 	memset(source, 0, size+1);
 

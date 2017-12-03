@@ -1,8 +1,9 @@
 #version 100
 
+//uniform ivec3 mainColor;
+
 void main(void) {
-	gl_FragColor[0] = gl_FragCoord.x/640.0;
-	gl_FragColor[1] = gl_FragCoord.y/480.0;
-	gl_FragColor[2] = 0.5;
+// draw everything in one color
+	gl_FragColor = vec4(1.0, 0.0, 0.0, 0.0);
 }
 
