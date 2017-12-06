@@ -43,16 +43,20 @@ LinesRenderer::~LinesRenderer() {
 	delete IMPL;
 }
 
+static GLint ATTRIB_LOC_COORD3D=0;
 void LinesRenderer::bindAttribLocations(Program* program) {
-#define ATTRIB_LOC_COORD3D (0)
-	program->bindAttribLocation(ATTRIB_LOC_COORD3D, "coord3d");
+//#define ATTRIB_LOC_COORD3D (1)
+//	program->bindAttribLocation(ATTRIB_LOC_COORD3D, "coord3d");
+	//program->bindAttribLocation(ATTRIB_LOC_COORD3D, "coord3d");
+	ATTRIB_LOC_COORD3D=program->getAttribLocation("coord3d");
+	INFO << "ATTRIB_LOC_CORRD3D="<<ATTRIB_LOC_COORD3D;
 }
 
 void LinesRenderer::renderLogOnce() {
 	IMPL->onceLog=true;
 }
 
-static float redValue=0.0f;
+static float redValue=0.5f;
 static float redValueIncrement=0.01f;
 
 void LinesRenderer::render(GLFWwindow* window, Program* program) {
@@ -68,7 +72,7 @@ void LinesRenderer::render(GLFWwindow* window, Program* program) {
 	glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	//program->use();
+	program->use();
 
 	// set the uniform "mainColor" to some more or less random value
 	GLint uLocation=program->uniformLocation(string("mainColor").c_str());
@@ -77,8 +81,13 @@ void LinesRenderer::render(GLFWwindow* window, Program* program) {
 	redValue+=redValueIncrement;
 	glUniform4f(uLocation, redValue, 0.3, 0.2, 0.8);
 
+	// see tut02 for how to use glBindBuffer() and glBufferData()
+	// that makes it possible to not send the vertex data on every frame,
+	// but only once.
+
 	// send the vertices to openGL
 	glEnableVertexAttribArray(ATTRIB_LOC_COORD3D);
 	glVertexAttribPointer(ATTRIB_LOC_COORD3D, 3, GL_FLOAT, GL_FALSE, 0, IMPL->vertices);
 	glDrawArrays(GL_TRIANGLES,  0, 3);
+	glDisableVertexAttribArray(ATTRIB_LOC_COORD3D);
 }

@@ -94,7 +94,7 @@ void render(SDL_Window* window) {
 	renderCounter+=increment;
 
 	float c=1.0-(1.0*renderCounter/100);
-	glClearColor(c, c, c, 1.0);
+	glClearColor(c, 1.0-c, c, 1.0);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	glUseProgram(program);

@@ -163,12 +163,18 @@ int main(int argc, char** argv) {
 	glfwSetWindowUserPointer(window, renderer);
 	TRACE << "did create new LinesRenderer(), will loadAndCompileShaderSet()";
 
+	// TODO move these statics to Renderer or separate class, or Program
 	static string shaderName="triangle";
+	static GLint attrLocs[]={
+			0
+	};
+	static const char* attrNames[]={
+			"coord3d"
+	};
+
 	if(program->loadAndCompileShaderSet(shaderName.c_str())) {
 		TRACE << "loadAndCompile succeded";
-		renderer->bindAttribLocations(program);
-		TRACE << "bindAttributeLocations succeded";
-		if(program->link()) {
+		if(program->link(attrLocs, attrNames, 1)) {
 			TRACE << "link succeded";
 			program->use();
 			TRACE << "use succeded";
@@ -178,6 +184,12 @@ int main(int argc, char** argv) {
 
 	// exit for DEBUG
 	//exit(EXIT_SUCCESS);
+
+	// TODO
+	// switch to SDL2 instead of glfw
+	// see example "second" and
+	// https://www.libsdl.org/
+
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window)) {

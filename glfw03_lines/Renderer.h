@@ -22,7 +22,7 @@ public:
 	virtual void renderLogOnce()=0;
 
 	/** this will call program->bindAttribLocation(int, char*) for all used attributes of the renderer. */
-	virtual void bindAttribLocations(Program *program)=0;
+	//virtual void bindAttribLocations(Program *program)=0;
 };
 
 #endif /* RENDERER_H_ */

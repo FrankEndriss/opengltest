@@ -30,8 +30,12 @@ public:
 
 	/** After compiling the shaders the program must be linked before using it.
 	 * see glLinkProgram(GLuint)
+	 * Before linking, glBindAttributeLocation will be called for all/count given attributes.
+	 * @param attribute locations array
+	 * @param attribute names array
+	 * @param count size of arrays
 	 */
-	GLint link();
+	GLint link(GLint* attribLocations, const char* attribNames[], int count);
 
 	/** After linking the program can be used, ie made the "current" program.
 	 * see glUseProgram(GLuint)
@@ -43,6 +47,7 @@ public:
 
 	/** see glBindAttribLocation(program, loc, attribName) */
 	void bindAttribLocation(int loc, const char* attrib);
+	GLint getAttribLocation(const char* attrib);
 private:
 	GLuint program;
 	Shader* fShader;
