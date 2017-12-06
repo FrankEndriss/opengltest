@@ -59,7 +59,7 @@ void LinesRenderer::renderLogOnce() {
 static float redValue=0.5f;
 static float redValueIncrement=0.01f;
 
-void LinesRenderer::render(GLFWwindow* window, Program* program) {
+void LinesRenderer::render(Program* program) {
 	IMPL->renderCallCount++;
 	if(IMPL->onceLog) {
 		INFO << "in LinesRenderer::render, calls: "<<IMPL->renderCallCount;
@@ -69,7 +69,7 @@ void LinesRenderer::render(GLFWwindow* window, Program* program) {
 	//int width, height;
 	//glfwGetFramebufferSize(window, &width, &height);
 	//glViewport(0, 0, width, height);
-	glClearColor(0.0f, 0.1f, 0.1f, 1.0f);
+	glClearColor(0.3f, 0.1f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	program->use();
@@ -79,7 +79,7 @@ void LinesRenderer::render(GLFWwindow* window, Program* program) {
 	if(redValue>=0.99f || redValue<=0.01f)
 		redValueIncrement=-redValueIncrement;
 	redValue+=redValueIncrement;
-	glUniform4f(uLocation, redValue, 0.3, 0.2, 0.8);
+	glUniform4f(uLocation, redValue, 0.3, 0.2, 1.0);
 
 	// see tut02 for how to use glBindBuffer() and glBufferData()
 	// that makes it possible to not send the vertex data on every frame,

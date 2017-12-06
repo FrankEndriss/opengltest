@@ -24,7 +24,7 @@ public:
 	void renderLogOnce();
 
 	/** Renders some lines into window. */
-	void render(GLFWwindow* window, Program* program);
+	void render(Program* program);
 private:
 	void* impl;
 };

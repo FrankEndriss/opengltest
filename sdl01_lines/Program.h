@@ -9,6 +9,8 @@
 
 #include "gl_include.h"
 #include "Shader.h"
+#include <cstring>
+using namespace std;
 
 class Program {
 public:

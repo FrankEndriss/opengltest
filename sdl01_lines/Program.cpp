@@ -30,9 +30,9 @@ Program::~Program() {
 	free(uniforms);
 }
 
-const static char* pathPostfixF=".f.glsl";
-const static char* pathPostfixV=".v.glsl";
-const int pathPostfixLen=strlen(pathPostfixF);
+const char* pathPostfixF=".f.glsl";
+const char* pathPostfixV=".v.glsl";
+const size_t pathPostfixLen=strlen(pathPostfixF);
 
 /** Helper function for loadAndCompileShaderSet(char*) */
 static GLuint dumpAndCleanupShader(Shader** shader, char* path, GLuint result) {

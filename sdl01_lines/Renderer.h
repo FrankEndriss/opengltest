@@ -16,7 +16,7 @@ protected:
 
 public:
 	/** Renders some stuff into window */
-	virtual void render(GLFWwindow* window, Program* program)=0;
+	virtual void render(Program* program)=0;
 
 	/** makes that the next call to render(window, program) will log something to INFO */
 	virtual void renderLogOnce()=0;

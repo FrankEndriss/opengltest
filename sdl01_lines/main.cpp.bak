@@ -112,14 +112,15 @@ GLFWwindow* switchFullscreenMode(GLFWwindow* window) {
 	return window;
 }
 
+
 int main(int argc, char** argv) {
-	/* Initialize GLFW first. */
+	// Initialize GLFW first.
 	if (!glfwInit())
 		return -1;
 
 	glfwSetErrorCallback(error_callback);
 
-	/* set minimum required glfw version */
+	// set minimum required glfw version
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 
@@ -134,7 +135,7 @@ int main(int argc, char** argv) {
 	}
 
 	GLFWwindow* window = NULL;
-	if (fullscreen) { /* Create fullscreen window */
+	if (fullscreen) { // Create fullscreen window
 		auto monitor = glfwGetPrimaryMonitor();
 		if (monitor == NULL)
 			fail("cant determine primary monitor");
@@ -144,7 +145,7 @@ int main(int argc, char** argv) {
 		window = glfwCreateWindow(mode->width, mode->height, "Hello World",
 				monitor, NULL);
 	} else
-		/* Create a windowed mode window and its OpenGL context */
+		// Create a windowed mode window and its OpenGL context
 		TRACE << "will create window";
 		window = glfwCreateWindow(640, 480, "Hello World", NULL, NULL);
 		TRACE << "did create window";
@@ -191,22 +192,22 @@ int main(int argc, char** argv) {
 	// https://www.libsdl.org/
 
 
-	/* Loop until the user closes the window */
+	// Loop until the user closes the window
 	while (!glfwWindowShouldClose(window)) {
-		/* if fullscreen mode switch should be done, then do it now. */
+		// if fullscreen mode switch should be done, then do it now.
 		if (switchFullscreen)
 			window = switchFullscreenMode(window);
 		switchFullscreen = false;
 
 		//glClear(GL_COLOR_BUFFER_BIT);
 
-		/* Render here */
+		// Render here
 		renderer->render(window, program);
 
-		/* Swap front and back buffers */
+		// Swap front and back buffers
 		glfwSwapBuffers(window);
 
-		/* Poll for and process events */
+		// Poll for and process events
 		glfwPollEvents();
 	}
 
