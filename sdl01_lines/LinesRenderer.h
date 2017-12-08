@@ -14,19 +14,16 @@ public:
 	LinesRenderer();
 	virtual ~LinesRenderer();
 
-	void setLineStarts(float startOfFirstLineX, float startOfFirstLineY, float startOfLastLineX, float startOfLastLineY);
-	void setLineEnds(float endOfFirstLineX, float endOfFirstLineY, float endOfLastLineX, float endOfLastLineY);
-	void setNumLines(int number);
-
-	/** this will call program->bindAttribLocation(int, char*) for all used attributes in the renderer. */
-	void bindAttribLocations(Program *program);
+	/** this will call program->link(...) for all used attributes in the renderer. */
+	GLint link(Program *program);
 
 	void renderLogOnce();
 
 	/** Renders some lines into window. */
 	void render(Program* program);
 private:
-	void* impl;
+	class Impl;
+	Impl* impl;
 };
 
 #endif /* LINESRENDERER_H_ */

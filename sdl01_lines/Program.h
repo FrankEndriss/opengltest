@@ -37,7 +37,7 @@ public:
 	 * @param attribute names array
 	 * @param count size of arrays
 	 */
-	GLint link(GLint* attribLocations, const char* attribNames[], int count);
+	GLint link(GLuint* attribLocations, string* attribNames, int count);
 
 	/** After linking the program can be used, ie made the "current" program.
 	 * see glUseProgram(GLuint)
@@ -56,6 +56,7 @@ private:
 	Shader* vShader;
 
 	/** Uniform table, count and initialization flag */
+	/** TODO remove... move to Renderer.cpp */
 	int uniformCount=-1;
 	typedef struct {
 		char* name;

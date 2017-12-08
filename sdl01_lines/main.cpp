@@ -41,8 +41,16 @@ SDL_Window* gWindow = NULL;
 //OpenGL context
 SDL_GLContext gContext;
 
-//Render flag
-bool gRenderQuad = true;
+void close()
+{
+	//Destroy window
+	SDL_DestroyWindow( gWindow );
+	gWindow = NULL;
+
+	//Quit SDL subsystems
+	SDL_Quit();
+	exit(0);
+}
 
 bool init()
 {
@@ -62,7 +70,7 @@ bool init()
 		SDL_GL_SetAttribute( SDL_GL_CONTEXT_MINOR_VERSION, 1 );
 
 		//Create window
-		gWindow = SDL_CreateWindow( "SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
+		gWindow = SDL_CreateWindow( "Lines", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN );
 		if( gWindow == NULL )
 		{
 			printf( "Window could not be created! SDL Error: %s\n", SDL_GetError() );
@@ -97,6 +105,9 @@ bool init()
 
 	return success;
 }
+
+static Renderer* renderer=0;
+static Program* program=0;
 
 bool initGL()
 {
@@ -138,48 +149,47 @@ bool initGL()
 		success = false;
 	}
 	
+		// create and compile the Shaders, then link the program
+		TRACE << "will create new Program()";
+		program=new Program();
+		TRACE << "did create new Program(), will create new LinesRenderer()";
+		renderer=new LinesRenderer();
+		TRACE << "did create new LinesRenderer(), will loadAndCompileShaderSet()";
+
+		// TODO move these statics to Renderer or separate class, or Program
+		static string shaderName="triangle";
+
+		if(program->loadAndCompileShaderSet(shaderName.c_str())) {
+			TRACE << "loadAndCompile succeded";
+			if(renderer->link(program)) {
+				TRACE << "link succeded";
+				program->use();
+				TRACE << "use succeded";
+			} else
+				exit(EXIT_FAILURE);
+		}
 	return success;
 }
 
 void handleKeys( unsigned char key, int x, int y )
 {
-	//Toggle quad
 	if( key == 'q' )
 	{
-		gRenderQuad = !gRenderQuad;
+		INFO << "will exit application";
+		close();
+	} else if(key=='f') {
+		INFO << "switch from/to fullscreen";
+		static int fsMode=0;
+		SDL_SetWindowFullscreen(gWindow, fsMode=fsMode==0?SDL_WINDOW_FULLSCREEN_DESKTOP:0);
+		// recreate GL context
+		gContext = SDL_GL_CreateContext( gWindow );
+		initGL();
 	}
 }
 
 void update()
 {
 	//No per frame update needed
-}
-
-void render()
-{
-	//Clear color buffer
-	glClear( GL_COLOR_BUFFER_BIT );
-	
-	//Render quad
-	if( gRenderQuad )
-	{
-		glBegin( GL_QUADS );
-			glVertex2f( -0.5f, -0.5f );
-			glVertex2f( 0.5f, -0.5f );
-			glVertex2f( 0.5f, 0.5f );
-			glVertex2f( -0.5f, 0.5f );
-		glEnd();
-	}
-}
-
-void close()
-{
-	//Destroy window	
-	SDL_DestroyWindow( gWindow );
-	gWindow = NULL;
-
-	//Quit SDL subsystems
-	SDL_Quit();
 }
 
 int main( int argc, char* args[] )
@@ -200,31 +210,6 @@ int main( int argc, char* args[] )
 		//Enable text input
 		SDL_StartTextInput();
 
-		// create and compile the Shaders, then link the program
-		TRACE << "will create new Program()";
-		Program* program=new Program();
-		TRACE << "did create new Program(), will create new LinesRenderer()";
-		Renderer* renderer=new LinesRenderer();
-		TRACE << "did create new LinesRenderer(), will loadAndCompileShaderSet()";
-
-		// TODO move these statics to Renderer or separate class, or Program
-		static string shaderName="triangle";
-		static GLint attrLocs[]={
-				0
-		};
-		static const char* attrNames[]={
-				"coord3d"
-		};
-
-		if(program->loadAndCompileShaderSet(shaderName.c_str())) {
-			TRACE << "loadAndCompile succeded";
-			if(program->link(attrLocs, attrNames, 1)) {
-				TRACE << "link succeded";
-				program->use();
-				TRACE << "use succeded";
-			} else
-				exit(EXIT_FAILURE);
-		}
 		//While application is running
 		while( !quit )
 		{

@@ -85,10 +85,10 @@ GLuint Program::loadAndCompileShaderSet(const char* pathPrefix) {
 	return res;
 }
 
-GLint Program::link(GLint* attribLocations, const char* attribNames[], int count) {
+GLint Program::link(GLuint* attribLocations, string* attribNames, int count) {
 
 	for(int i=0; i<count; i++)
-		glBindAttribLocation(program, attribLocations[i], attribNames[i]);
+		glBindAttribLocation(program, attribLocations[i], attribNames[i].c_str());
 
 	glLinkProgram(program);
 	GLint ret;

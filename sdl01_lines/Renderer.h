@@ -18,11 +18,11 @@ public:
 	/** Renders some stuff into window */
 	virtual void render(Program* program)=0;
 
+	/** this will call program->link(...) for all used attributes in the renderer. */
+	virtual GLint link(Program *program)=0;
+
 	/** makes that the next call to render(window, program) will log something to INFO */
 	virtual void renderLogOnce()=0;
-
-	/** this will call program->bindAttribLocation(int, char*) for all used attributes of the renderer. */
-	//virtual void bindAttribLocations(Program *program)=0;
 };
 
 #endif /* RENDERER_H_ */
