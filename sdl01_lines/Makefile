@@ -3,10 +3,10 @@
 #-std=c++11 beause thats the HOT stuff
 #-Wall because we are pedantic
 #-DBOOST_LOG_DYn_LINK for logging with boost-log library
-CXX=g++ `pkg-config --cflags glu sdl2 glfw3 gl` -std=c++11 -Wall -DBOOST_LOG_DYN_LINK
+CXX=g++ `pkg-config --cflags glu sdl2 gl` -std=c++11 -Wall -DBOOST_LOG_DYN_LINK
 LD=g++
 #-lboost_log and -lpthread for logging wicht boost-log library
-LDFLAGS=`pkg-config --libs glu sdl2 glfw3 gl` -lboost_log  -lpthread
+LDFLAGS=`pkg-config --libs glu sdl2 gl` -lboost_log  -lpthread
 
 OBJDIR := obj
 SRCS=$(wildcard *.cpp)
