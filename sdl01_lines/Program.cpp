@@ -87,8 +87,10 @@ GLuint Program::loadAndCompileShaderSet(const char* pathPrefix) {
 
 GLint Program::link(GLuint* attribLocations, string* attribNames, int count) {
 
-	for(int i=0; i<count; i++)
+	for(int i=0; i<count; i++) {
 		glBindAttribLocation(program, attribLocations[i], attribNames[i].c_str());
+		INFO << "bound attribute: "<< attribNames[i] << " to location "<< attribLocations[i];
+	}
 
 	glLinkProgram(program);
 	GLint ret;

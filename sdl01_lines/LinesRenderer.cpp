@@ -14,8 +14,7 @@ public:
 	GLfloat *vertices;
 // number of display lines
 #define NUM_LINES 50
-#define VERTICES_PER_LINE 2
-#define FLOATS_PER_VERTEX 5
+#define FLOATS_PER_LINE 10
 #define OFFSET1_X 0
 #define OFFSET1_Y 1
 #define OFFSET1_R 2
@@ -26,12 +25,20 @@ public:
 #define OFFSET2_R 7
 #define OFFSET2_G 8
 #define OFFSET2_B 9
+#define IDXLINESTART(line) (line*FLOATS_PER_LINE)
 
 	Impl() {
-		vertices=(GLfloat*)malloc(sizeof(GLfloat)*FLOATS_PER_VERTEX*NUM_LINES*VERTICES_PER_LINE);
+		vertices=(GLfloat*)malloc(sizeof(GLfloat)*NUM_LINES*FLOATS_PER_LINE);
 
-		for(int i=0; i<NUM_LINES*FLOATS_PER_VERTEX*VERTICES_PER_LINE; i++)
+		for(int i=0; i<NUM_LINES*FLOATS_PER_LINE; i++)
 			vertices[i]=0.0f;
+
+		// init colors of all vertices
+		for(int line=0; line<NUM_LINES; line++) {
+			vertices[IDXLINESTART(line) + OFFSET1_B]=1.0f;
+			vertices[IDXLINESTART(line) + OFFSET2_R]=1.0f;
+		}
+
 	}
 
 	~Impl() {
@@ -46,7 +53,46 @@ public:
 	float speed1_Y=0.037;
 	float speed2_X=0.017;
 	float speed2_Y=0.013;
+	// moving vector of colors
+	float speed1_R=0.0037;
+	float speed1_G=0.0041;
+	float speed1_B=0.0013;
+	float speed2_R=0.00313;
+	float speed2_G=0.00432;
+	float speed2_B=0.00231;
+
 	int firstLineIdx=0;
+
+	// Color of all vertices for mode where all lines have one and
+	// the same color.
+
+	//GLfloat singleColor[3]={ 1.0f, 1.0f, 1.0f };
+
+	/** if abs(value)>=1 delta is multiplied by -1 */
+	GLfloat calcAndFlip(GLfloat value, GLfloat *delta, GLfloat min, GLfloat max) {
+		float ret=value+(*delta);
+
+		if(ret<min) {
+			ret=min;
+			(*delta)=-(*delta);
+		} else if(ret>max) {
+			ret=max;
+			(*delta)=-(*delta);
+		}
+		return ret;
+	}
+
+	/** if abs(value)>=1 delta is multiplied by -1 */
+	GLfloat calcAndFlipCol(float value, float *delta) {
+		return calcAndFlip(value, delta, 0.0, 1.0);
+	}
+
+	GLfloat calcAndFlipCoo(float value, float *delta) {
+		return calcAndFlip(value, delta, -1.0, 1.0);
+	}
+
+
+
 
 	/** step moves the last line in the buffer
 	 * to the location of the first line plus
@@ -60,24 +106,24 @@ public:
 			newFirstLineIdx=0;
 
 		// first dot of new first line
-		int x1=vertices[newFirstLineIdx*FLOATS_PER_VERTEX*VERTICES_PER_LINE+OFFSET1_X]=vertices[firstLineIdx*FLOATS_PER_VERTEX*VERTICES_PER_LINE+OFFSET1_X]+speed1_X;
-		int y1=vertices[newFirstLineIdx*FLOATS_PER_VERTEX*VERTICES_PER_LINE+OFFSET1_Y]=vertices[firstLineIdx*FLOATS_PER_VERTEX*VERTICES_PER_LINE+OFFSET1_Y]+speed1_Y;
+		vertices[IDXLINESTART(newFirstLineIdx)+OFFSET1_X] = calcAndFlipCoo(vertices[IDXLINESTART(firstLineIdx)+OFFSET1_X], &speed1_X);
+		vertices[IDXLINESTART(newFirstLineIdx)+OFFSET1_Y] = calcAndFlipCoo(vertices[IDXLINESTART(firstLineIdx)+OFFSET1_Y], &speed1_Y);
 
 		// second dot of new first line
-		int x2=vertices[newFirstLineIdx*FLOATS_PER_VERTEX*VERTICES_PER_LINE+OFFSET2_X]=vertices[firstLineIdx*FLOATS_PER_VERTEX*VERTICES_PER_LINE+OFFSET2_X]+speed2_X;
-		int y2=vertices[newFirstLineIdx*FLOATS_PER_VERTEX*VERTICES_PER_LINE+OFFSET2_Y]=vertices[firstLineIdx*FLOATS_PER_VERTEX*VERTICES_PER_LINE+OFFSET2_Y]+speed2_Y;
+		vertices[IDXLINESTART(newFirstLineIdx)+OFFSET2_X] = calcAndFlipCoo(vertices[IDXLINESTART(firstLineIdx)+OFFSET2_X], &speed2_X);
+		vertices[IDXLINESTART(newFirstLineIdx)+OFFSET2_Y] = calcAndFlipCoo(vertices[IDXLINESTART(firstLineIdx)+OFFSET2_Y], &speed2_Y);
+
+		// color of first dot
+		vertices[IDXLINESTART(newFirstLineIdx)+OFFSET1_R] = calcAndFlipCol(vertices[IDXLINESTART(firstLineIdx)+OFFSET1_R], &speed1_R);
+		vertices[IDXLINESTART(newFirstLineIdx)+OFFSET1_G] = calcAndFlipCol(vertices[IDXLINESTART(firstLineIdx)+OFFSET1_G], &speed1_G);
+		vertices[IDXLINESTART(newFirstLineIdx)+OFFSET1_B] = calcAndFlipCol(vertices[IDXLINESTART(firstLineIdx)+OFFSET1_B], &speed1_B);
+
+		// color of second dot
+		vertices[IDXLINESTART(newFirstLineIdx)+OFFSET2_R] = calcAndFlipCol(vertices[IDXLINESTART(firstLineIdx)+OFFSET2_R], &speed2_R);
+		vertices[IDXLINESTART(newFirstLineIdx)+OFFSET2_G] = calcAndFlipCol(vertices[IDXLINESTART(firstLineIdx)+OFFSET2_G], &speed2_G);
+		vertices[IDXLINESTART(newFirstLineIdx)+OFFSET2_B] = calcAndFlipCol(vertices[IDXLINESTART(firstLineIdx)+OFFSET2_B], &speed2_B);
 
 		firstLineIdx=newFirstLineIdx;
-
-		// if collision with viewport border change direction
-		if(x1>=1. || x1<=-1.)
-			speed1_X*=-1;
-		if(y1>=1. || y1<=-1.)
-			speed1_Y*=-1;
-		if(x2>=1. || x2<=-1.)
-			speed2_X*=-1;
-		if(y2>=1. || y2<=-1.)
-			speed2_Y*=-1;
 	}
 };
 
@@ -98,10 +144,9 @@ GLint LinesRenderer::link(Program* program) {
 	};
 	static string attributeNames[]={
 			"coord2d",
-			"color3"
+			"color3d"
 	};
-	// TODO send the colors, too
-	return program->link(attributesLocs, attributeNames, 1);
+	return program->link(attributesLocs, attributeNames, 2);
 }
 
 void LinesRenderer::renderLogOnce() {
@@ -120,10 +165,10 @@ void LinesRenderer::render(Program* program) {
 	//int width, height;
 	//glfwGetFramebufferSize(window, &width, &height);
 	//glViewport(0, 0, width, height);
-	glClearColor(0.3f, 0.1f, 0.3f, 1.0f);
+	//glClearColor(0.3f, 0.1f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	program->use();
+	//program->use();
 
 	// set the uniform "mainColor" to some more or less random value
 /*
@@ -138,10 +183,20 @@ void LinesRenderer::render(Program* program) {
 	// that makes it possible to not send the vertex data on every frame,
 	// but only once.
 
-	// send the vertices to openGL
-	glEnableVertexAttribArray(ATTRIB_LOC_COORD2D);
-	glVertexAttribPointer(ATTRIB_LOC_COORD2D, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*FLOATS_PER_VERTEX, impl->vertices);
+	//glVertexAttrib3f(ATTRIB_LOC_COLOR3, impl->singleColor[0], impl->singleColor[1], impl->singleColor[2]);
 
-	glDrawArrays(GL_LINES,  0, NUM_LINES*VERTICES_PER_LINE);
+
+	// single Color mode
+
+	// send the vertices to openGL, coordinates
+	glVertexAttribPointer(ATTRIB_LOC_COORD2D, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*FLOATS_PER_LINE/2, impl->vertices);
+
+	// send the vertices to openGL, colors
+	glVertexAttribPointer(ATTRIB_LOC_COLOR3, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat)*FLOATS_PER_LINE/2, ((impl->vertices)+OFFSET1_R));
+
+	glEnableVertexAttribArray(ATTRIB_LOC_COORD2D);
+	glEnableVertexAttribArray(ATTRIB_LOC_COLOR3);
+	glDrawArrays(GL_LINES,  0, NUM_LINES*2);
 	glDisableVertexAttribArray(ATTRIB_LOC_COORD2D);
+	glDisableVertexAttribArray(ATTRIB_LOC_COLOR3);
 }

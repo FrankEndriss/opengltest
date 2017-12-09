@@ -111,7 +111,6 @@ static Program* program=0;
 
 bool initGL()
 {
-	bool success = true;
 	GLenum error = GL_NO_ERROR;
 
 	//Initialize Projection Matrix
@@ -122,8 +121,8 @@ bool initGL()
 	error = glGetError();
 	if( error != GL_NO_ERROR )
 	{
-		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
-		success = false;
+		ERROR << "Error initializing OpenGL! " << gluErrorString( error ) ;
+		return false;
 	}
 
 	//Initialize Modelview Matrix
@@ -134,8 +133,8 @@ bool initGL()
 	error = glGetError();
 	if( error != GL_NO_ERROR )
 	{
-		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
-		success = false;
+		ERROR << "Error initializing OpenGL! " << gluErrorString( error );
+		return false;
 	}
 	
 	//Initialize clear color
@@ -145,30 +144,38 @@ bool initGL()
 	error = glGetError();
 	if( error != GL_NO_ERROR )
 	{
-		printf( "Error initializing OpenGL! %s\n", gluErrorString( error ) );
-		success = false;
+		ERROR << "Error initializing OpenGL! " << gluErrorString( error );
+		return false;
 	}
 	
-		// create and compile the Shaders, then link the program
-		TRACE << "will create new Program()";
-		program=new Program();
-		TRACE << "did create new Program(), will create new LinesRenderer()";
-		renderer=new LinesRenderer();
-		TRACE << "did create new LinesRenderer(), will loadAndCompileShaderSet()";
+	// create and compile the Shaders, then link the program
+	TRACE << "will create new Program()";
+	program=new Program();
+	TRACE << "did create new Program(), will create new LinesRenderer()";
+	renderer=new LinesRenderer();
+	TRACE << "did create new LinesRenderer(), will loadAndCompileShaderSet()";
 
-		// TODO move these statics to Renderer or separate class, or Program
-		static string shaderName="triangle";
+	// TODO move these statics to Renderer or separate class, or Program
+	static string shaderName="triangle";
 
-		if(program->loadAndCompileShaderSet(shaderName.c_str())) {
-			TRACE << "loadAndCompile succeded";
-			if(renderer->link(program)) {
-				TRACE << "link succeded";
-				program->use();
-				TRACE << "use succeded";
-			} else
-				exit(EXIT_FAILURE);
+	if(program->loadAndCompileShaderSet(shaderName.c_str())) {
+		TRACE << "loadAndCompile succeeded";
+		if(renderer->link(program)) {
+			TRACE << "link succeeded";
+			program->use();
+			TRACE << "use succeeded";
+		} else {
+			ERROR << "unable to link program";
+			return false;
 		}
-	return success;
+	} else {
+		ERROR << "unable to loadAndCompileShaderSet()";
+		return false;
+	}
+
+	glLineWidth(3.0f);
+
+	return true;
 }
 
 void handleKeys( unsigned char key, int x, int y )
