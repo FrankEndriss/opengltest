@@ -158,7 +158,7 @@ bool initGL()
 	// TODO move these statics to Renderer or separate class, or Program
 	static string shaderName="triangle";
 
-	if(program->loadAndCompileShaderSet(shaderName.c_str())) {
+	if(program->loadAndCompileShaderSet(shaderName)) {
 		TRACE << "loadAndCompile succeeded";
 		if(renderer->link(program)) {
 			TRACE << "link succeeded";

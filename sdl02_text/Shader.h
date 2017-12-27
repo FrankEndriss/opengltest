@@ -4,6 +4,7 @@
 
 #include "gl_include.h"
 #include <ostream>
+#include <string>
 
 /** Shader-Compiler interface.
  */
@@ -17,7 +18,7 @@ public:
 	/** Frontend to compile(source...)
 	 * @param path to source of shader
 	 */
-	GLint compileFile(char* path);
+	GLint compileFile(const std::string& path);
 	/** @param source lines of sourcecode
 	 *  @param lineCount number of lines, each one null terminated
 	 *  @return true for SUCCESS, else dumpCompileInfo will contain useful info

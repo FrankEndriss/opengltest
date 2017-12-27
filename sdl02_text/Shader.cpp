@@ -7,8 +7,6 @@
 
 #include "gl_include.h"
 #include "Shader.h"
-#include <malloc.h>
-
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -24,7 +22,7 @@ Shader::~Shader() {
 
 using namespace std;
 
-GLint Shader::compileFile(char* path) {
+GLint Shader::compileFile(const string& path) {
 	streampos begin, end;
 	ifstream ifs(path, ios::binary);
 
@@ -36,7 +34,7 @@ GLint Shader::compileFile(char* path) {
 	end = ifs.tellg();
 	int size=end-begin;
 	cout<<"size of file "<<path<<" is "<<size<< endl;
-	char *source=(char*)malloc(size+1);
+	char* source=new char[size+1];
 	memset(source, 0, size+1);
 
 	ifs.seekg(0);
@@ -44,10 +42,10 @@ GLint Shader::compileFile(char* path) {
 	cout << "compiling: "<<path<<endl;
 	cout << "source:"<<endl;
 	cout << source;
-	GLint ret=compile(&source, 1);
+	GLint ret=compile((char**)&source, 1);
+	delete source;
 	cout << "compile result: "<<ret<<endl;
 
-	free(source);
 	return ret;
 }
 
@@ -59,7 +57,6 @@ GLint Shader::compile(char** source, int lineCount) {
 	return ret;
 }
 
-//void Shader::dumpCompileInfo(std::ostream out) {
 void Shader::dumpCompileInfo() {
 	GLint len;
 	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);

@@ -28,7 +28,7 @@ public:
 	 * fitting the name pattern.
 	 * @return SUCCESS flag of compilation, ie 0 if at least one of the Shaders does not compile
 	 **/
-	GLuint loadAndCompileShaderSet(const char* path);
+	GLuint loadAndCompileShaderSet(string& path);
 
 	/** After compiling the shaders the program must be linked before using it.
 	 * see glLinkProgram(GLuint)
@@ -47,9 +47,6 @@ public:
 	/** @return openGL location of uniform name, to use with glUniform*(location, values) */
 	GLint uniformLocation(const char* name);
 
-	/** see glBindAttribLocation(program, loc, attribName) */
-	void bindAttribLocation(int loc, const char* attrib);
-	GLint getAttribLocation(const char* attrib);
 private:
 	GLuint program;
 	Shader* fShader;
