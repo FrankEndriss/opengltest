@@ -3,8 +3,8 @@
 #-std=c++11 beause thats the HOT stuff
 #-Wall because we are pedantic
 #-DBOOST_LOG_DYn_LINK for logging with boost-log library
-CXX=g++ `pkg-config --cflags glu sdl2 gl` -std=c++11 -Wall -DBOOST_LOG_DYN_LINK
-LD=g++
+CXX=g++-5 `pkg-config --cflags glu sdl2 gl` -std=c++14 -Wall -DBOOST_LOG_DYN_LINK
+LD=g++-5
 #-lboost_log and -lpthread for logging wicht boost-log library
 LDFLAGS=`pkg-config --libs glu sdl2 gl` -lboost_log  -lpthread
 

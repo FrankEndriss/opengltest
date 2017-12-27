@@ -12,17 +12,10 @@ using namespace std;
 
 Program::Program() {
 	program=glCreateProgram();
-	fShader=NULL;
-	vShader=NULL;
 	uniforms=0;
 }
 
 Program::~Program() {
-	if(fShader)
-		delete fShader;
-	if(vShader)
-		delete vShader;
-
 	glDeleteProgram(program);
 
 	for(int i=0; i<uniformCount; i++)
@@ -30,62 +23,37 @@ Program::~Program() {
 	free(uniforms);
 }
 
-const char* pathPostfixF=".f.glsl";
-const char* pathPostfixV=".v.glsl";
-//const size_t pathPostfixLen=strlen(pathPostfixF);
-
-/** Helper function for loadAndCompileShaderSet(char*) */
-static GLuint dumpAndCleanupShader(Shader** shader, string path, GLuint result) {
-		(*shader)->dumpCompileInfo();
-		delete *shader;
-		*shader=NULL;
-		return result;
-}
-
-GLuint Program::loadAndCompileShaderSet(string& pathPrefix) {
-	//const int pathPrefixLen=strlen(pathPrefix);
-	//char* path=(char*)malloc(pathPrefixLen+pathPostfixLen+1);
-
-	cout<<"will create fragment Shader()"<<endl;
-	// compile the fragment shader
-	fShader=new Shader(GL_FRAGMENT_SHADER);
-
-	//auto fShader2=std::make_shared<Shader>(GL_FRAGMENT_SHADER);
-	//cout<< fShader2 << endl;
-
-	cout<<"did create fragment Shader()"<<endl;
-	//path[0]='\0'; // empty string
-	//strncat(path, pathPrefix, pathPrefixLen);
-	//strncat(path, pathPostfixF, pathPostfixLen);
-	const string path=pathPrefix+pathPostfixF;
+static GLuint compileShader(const string& path, Shader& shader) {
 	cout<<"will Shader()->compileFile("<<path<<")"<<endl;
-	GLuint res=fShader->compileFile(path);
+	const GLuint res=shader.compileFile(path);
 	if(!res) { // compilation failed
 		cout<<"Shader()->compileFile("<<path<<") failed"<<endl;
-		return dumpAndCleanupShader(&fShader, path, res);
+		shader.dumpCompileInfo();
+	} else
+		cout<<"Shader()->compileFile("<<path<<") succeeded"<<endl;
+
+	return res;
+}
+
+/** Postfix names for Shader source files */
+static string pathPostfixF=".f.glsl";
+static string pathPostfixV=".v.glsl";
+
+GLuint Program::loadAndCompileShaderSet(const string& pathPrefix) {
+	Shader fShader(GL_FRAGMENT_SHADER);
+	const GLuint res=compileShader(pathPrefix+pathPostfixF, fShader);
+	if(!res) {
+		return res;
 	}
-	cout<<"Shader()->compileFile("<<path<<") succeeded"<<endl;
 
-	// compile the vertex shader
-	cout<<"will create vertex Shader()"<<endl;
-	vShader=new Shader(GL_VERTEX_SHADER);
-	cout<<"did create vertex Shader()"<<endl;
-	//path[0]='\0'; // empty string
-	//strncat(path, pathPrefix, pathPrefixLen);
-	//strncat(path, pathPostfixV, pathPostfixLen);
-	cout<<"will Shader()->compileFile("<<path<<")"<<endl;
-	const string path2=pathPrefix+pathPostfixV;
-	res=vShader->compileFile(path2);
-	if(!res) { // compilation failed
-		cout<<"Shader()->compileFile("<<path2<<") failed"<<endl;
-		return dumpAndCleanupShader(&vShader, path2, res);
+	Shader vShader(GL_VERTEX_SHADER);
+	const GLuint res2=compileShader(pathPrefix+pathPostfixV, vShader);
+	if(!res2) { // compilation failed
+		return res2;
 	}
-	cout<<"Shader()->compileFile("<<path2<<") succeeded"<<endl;
 
-	//free(path);
-
-	glAttachShader(program, vShader->shader);
-	glAttachShader(program, fShader->shader);
+	glAttachShader(program, vShader.shader);
+	glAttachShader(program, fShader.shader);
 
 	return res;
 }

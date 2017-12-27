@@ -28,7 +28,7 @@ public:
 	 * fitting the name pattern.
 	 * @return SUCCESS flag of compilation, ie 0 if at least one of the Shaders does not compile
 	 **/
-	GLuint loadAndCompileShaderSet(string& path);
+	GLuint loadAndCompileShaderSet(const string& path);
 
 	/** After compiling the shaders the program must be linked before using it.
 	 * see glLinkProgram(GLuint)
@@ -49,8 +49,8 @@ public:
 
 private:
 	GLuint program;
-	Shader* fShader;
-	Shader* vShader;
+	//Shader* fShader;
+	//Shader* vShader;
 
 	/** Uniform table, count and initialization flag */
 	/** TODO remove... move to Renderer.cpp */
